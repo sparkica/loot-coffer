@@ -5,33 +5,32 @@ from flask import Flask, request, jsonify, json
 from flask import render_template, redirect
 app = Flask(__name__)
 
+import helpers
 
 WP_API_GATEWAY = "http://wpapi.org/api/plugin/"
 
 
 @app.route("/wp/")
-def wp_stats(names=None, methods=['GET', 'POST']):
+def wp_stats(names=None, methods=['GET']):
 
-	stats = {}
+	all_stats = []
+
+	print 'here'
+
 	if request.method == 'GET':
-		plug_slug = request.args.get('plugin')
+		slugs_arg = request.args.get('q')
+		print "Slug arg: ", slugs_arg
 
-		if plug_slug:
-			#http://wpapi.org/api/type/slug.format
-			json_res = urllib.urlopen(WP_API_GATEWAY + plug_slug + '.json').read()
-			res = simplejson.loads(json_res)
-			stats = [{'name' : res['name'],
-					'slug' : plug_slug,
-					'rating': res['rating'],
-					'avg_downloads' : res['average_downloads'],
-					'hits': res['hits']
-					}]
-		else:
-			print "No plugin slug"
+		plug_slugs = slugs_arg.split(',')
+
+
+		for plugin in plug_slugs:
+			stats = get_plugin_info(plug_slug)
+			all_stats.append(stats)
 	else:
-		stats = None
+		all_stats = None
 
-	return render_template('wordpress.html', name=plug_slug, stats=stats)
+	return render_template('wordpress.html', name=plug_slug, stats=all_stats)
 
 
 @app.route("/")
