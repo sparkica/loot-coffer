@@ -13,30 +13,40 @@ app = Flask(__name__)
 
 WP_API_GATEWAY = "http://wpapi.org/api/plugin/"
 
+def get_wp_plugin_info(plugin_slug):
 
-@app.route("/wp/")
-def wp_stats(names=None, methods=['GET', 'POST']):
+	json_res = urllib.urlopen(WP_API_GATEWAY + plugin_slug + '.json').read()
+	res = simplejson.loads(json_res)
+	stats = {'name' : res['name'],
+			'slug' : plugin_slug,
+			'version': res['version'],
+			'updated': res['updated'],
+			'rating': res['rating'],
+			'avg_downloads' : res['average_downloads'],
+			'hits': res['hits'],
+			'total_downloads': res['total_downloads']
+			}
+	return stats
 
-	stats = {}
+
+
+@app.route('/wp/')
+def wp_stats(methods=['GET']):
+
+	all_stats = []
 	if request.method == 'GET':
-		plug_slug = request.args.get('plugin')
+		slugs_arg = request.args.get('q')
+		if slugs_arg:
+			plug_slugs = slugs_arg.split(',')
 
-		if plug_slug:
-			#http://wpapi.org/api/type/slug.format
-			json_res = urllib.urlopen(WP_API_GATEWAY + plug_slug + '.json').read()
-			res = simplejson.loads(json_res)
-			stats = [{'name' : res['name'],
-					'slug' : plug_slug,
-					'rating': res['rating'],
-					'avg_downloads' : res['average_downloads'],
-					'hits': res['hits']
-					}]
-		else:
-			print "No plugin slug"
+			for plugin in plug_slugs:
+				stats = get_wp_plugin_info( plugin.strip() )
+				all_stats.append(stats)
 	else:
-		stats = None
+		all_stats = None
 
-	return render_template('wordpress.html', name=plug_slug, stats=stats)
+	return render_template('wordpress.html', stats=all_stats)
+
 
 
 @app.route("/")
@@ -83,4 +93,4 @@ def google():
 		pass
 
 if __name__ == "__main__":
-	app.run()
+	app.run(debug=True)
