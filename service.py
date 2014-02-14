@@ -6,7 +6,7 @@ import urllib
 import simplejson
 
 from flask import Flask, request, jsonify, json
-from flask import render_template, redirectž
+from flask import render_template, redirect
 
 app = Flask(__name__)
 
@@ -66,6 +66,21 @@ def twitter():
 		twitter_feed += record['html'] + "<br>"
 
 	return "<html><body>" + twitter_feed + "</body></html>"
+
+@app.route("/google")
+def google():
+	from google.appengine.api import search
+
+	# a query string like this comes from the client
+	querystring = “stories”
+	try:
+	 	index = search.Index(INDEX_NAME)
+	  	search_query = search.Query(
+		  	query_string=querystring,
+	      	options=search.QueryOptions(limit=doc_limit))
+		search_results = index.search(search_query)
+	except search.Error:
+		pass
 
 if __name__ == "__main__":
 	app.run()
