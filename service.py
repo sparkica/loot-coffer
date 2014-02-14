@@ -29,16 +29,19 @@ def wp_supportfeeds(methods=['GET']):
 	if request.method == 'GET':
 		slugs_arg = request.args.get('q')
 		no_entries = int(request.args.get('entries')) if request.args.get('entries') is not None else -1
+		details_arg = request.args.get('details')
+		details = details_arg.split(',') if details_arg is not None else []
+
 		if slugs_arg:
 			plug_slugs = slugs_arg.split(',')
 
 			for plugin in plug_slugs:
 				entries = get_wp_support_feed_entries( plugin.strip(), no_entries )
-				all_entries.append({'name': plugin, 'entries': entries })
+				all_entries.append({'name': plugin, 'entries': entries})
 	else:
 		all_entries = None
 
-	return render_template('wordpress_support.html', plugins=all_entries)
+	return render_template('wordpress_support.html', plugins=all_entries, details=details)
 
 
 def get_wp_plugin_info(plugin_slug):

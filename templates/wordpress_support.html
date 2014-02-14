@@ -1,21 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>WordPress.org support entries</h1>
+<h1>WordPress.org last support entries</h1>
 <div class="wrapper">
 
-<table>
+<div>
 {% for plug in plugins %}
-<tr><td>{{ plug.name }}</td>
-<td>
+<div class="lc-plugin-name">{{ plug.name }}</div>
+<div class="lc-rss-entries">
 	<ul>
 	{% for entry in plug.entries %}
-		<li><a href="{{ entry.link }}" target="_blank">{{ entry.title }} </a></li>
+	<li class="lc-rss-entry">
+		<a href="{{ entry.link }}" target="_blank">{{ entry.title }}</a> 
+		{% if 'date' in details or 'all' in details %}
+		<span class="lc-date">{{ entry.published }}</span>
+		{% endif %}
+		{% if 'desc' in details or 'all' in details %}
+		<br>{{ entry.description|striptags }}
+		{% endif %}
+	</li>
 	{% endfor %}
 	</ul>
-	</td>
-	</tr>
+	</div>
+	</div>
 {% endfor %}
-</table>
+</div>
 </div>
 {% endblock %}
 
