@@ -1,8 +1,7 @@
-<html>
-<head></head>
-<body>
+{% extends "base.html" %}
+{% block content %}
 <h1>WordPress.org Stats for plugin {{ name }}</h1>
-<div class="content">
+<div class="wrapper">
 <ul>
 {% for plug in stats %}
 <li>Name: {{ plug.name }}
@@ -16,6 +15,5 @@
 
 {% endfor %}
 </ul></div>
+{% endblock %}
 
-</body>
-</html>
