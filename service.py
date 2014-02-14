@@ -3,14 +3,43 @@ import tweepy
 import urllib2
 import urllib
 import localsettings as settings
+import feedparser
 
 from flask import Flask, request, jsonify, json
 from flask import render_template, redirect
+
 
 app = Flask(__name__)
 
 
 WP_API_GATEWAY = "http://wpapi.org/api/plugin/"
+WP_SUPPORT_RSS_FEED = "http://wordpress.org/support/rss/plugin/"
+
+def get_wp_support_feed_entries(plugin_slug, no_entries=-1):
+	feed = feedparser.parse(WP_SUPPORT_RSS_FEED + plugin_slug)
+
+	if no_entries < 0:
+		return feed['entries']
+	return feed['entries'][:no_entries]
+
+
+@app.route('/wp/support/')
+def wp_supportfeeds(methods=['GET']):
+	all_entries = []
+	if request.method == 'GET':
+		slugs_arg = request.args.get('q')
+		no_entries = int(request.args.get('entries')) if request.args.get('entries') is not None else -1
+		if slugs_arg:
+			plug_slugs = slugs_arg.split(',')
+
+			for plugin in plug_slugs:
+				entries = get_wp_support_feed_entries( plugin.strip(), no_entries )
+				all_entries.append({'name': plugin, 'entries': entries })
+	else:
+		all_entries = None
+	
+	return render_template('wordpress_support.html', plugins=all_entries)
+
 
 def get_wp_plugin_info(plugin_slug):
 
