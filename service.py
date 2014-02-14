@@ -58,7 +58,6 @@ def twitter():
 	keywords = ["#Zemanta", "@Zemanta"]
 	twitter_filter = " OR ".join([keyword for keyword in keywords])
 
-	print settings.TWITTER_CONSUMER_TOKEN
 	auth = tweepy.OAuthHandler(settings.TWITTER_CONSUMER_TOKEN, settings.TWITTER_CONSUMER_SECRET)
 	# next lines seem not to be needed but were present in the tutorial
 	# Redirect user to Twitter to authorize
