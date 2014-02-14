@@ -37,7 +37,7 @@ def wp_supportfeeds(methods=['GET']):
 				all_entries.append({'name': plugin, 'entries': entries })
 	else:
 		all_entries = None
-	
+
 	return render_template('wordpress_support.html', plugins=all_entries)
 
 
@@ -112,38 +112,52 @@ def google(methods=['GET']):
 
 	blacklist = ["https://github.com"]
 
-	query = "Zemanta"
+	query = None
 	if request.method == 'GET':
-		query = request.args.get('q')
+		if 'q' in request.args:
+			query = request.args.get('q')
+
+	if query is None:
+		query = "Zemanta"
 
 	# 1w - one week
 	last_week = "dateRestrict=1w"
-	number_of_results = "num=20"
-
-	url = ('https://ajax.googleapis.com/ajax/services/search/web'
-		   '?v=1.0&key=%s&q=%s&%s&%s' % (settings.GOOGLE_API_KEY, query, last_week, number_of_results))
-
-	new_request = urllib2.Request(
-		url, None, {'Referer': "http://www.zemanta.com/"})
-	response = urllib2.urlopen(new_request).read()
-
-	# Process the JSON string.
-	result = json.loads(response)
-
-	results = result['responseData']['results']
-	print len(results)
-
+	total_results = 30
 	html_results = []
-	for result in results:
-		if [url for url in blacklist if result['url'].startswith(url)] != []:
-			continue
+	start_index = 0
+	while start_index < total_results:
+		# 10 is max
+		start = "start=%d" % start_index
+		number_of_results = "num=10"
+		other_options = "rsz=large"
 
-		rendered_html = "<div>"
-		rendered_html += result['title'] + "<br>"
-		rendered_html += "<a href=" + result['url'] + ">%s</a>" % result['url'] + "<br>"
-		rendered_html += result['content'] + "<br>"
-		rendered_html += "</div>"
-		html_results.append(rendered_html)
+		url = ('https://ajax.googleapis.com/ajax/services/search/web'
+		   	'?v=1.0&key=%s&q=%s&%s&%s&%s&%s' % (settings.GOOGLE_API_KEY, query, last_week, start, number_of_results, other_options))
+
+		new_request = urllib2.Request(
+			url, None, {'Referer': "http://www.zemanta.com/"})
+		response = urllib2.urlopen(new_request).read()
+
+		# Process the JSON string.
+		result = json.loads(response)
+
+		results = result['responseData']['results']
+
+		if len(results) == 0:
+			start_index = total_results
+		else:
+			start_index += len(results)
+
+		for result in results:
+			if [url for url in blacklist if result['url'].startswith(url)] != []:
+				continue
+
+			rendered_html = "<div>"
+			rendered_html += result['title'] + "<br>"
+			rendered_html += "<a href=" + result['url'] + ">%s</a>" % result['url'] + "<br>"
+			rendered_html += result['content'] + "<br>"
+			rendered_html += "</div>"
+			html_results.append(rendered_html)
 
 	return """<html><head><script src="https://www.google.com/jsapi" type="text/javascript"></script></head><body>""" + "<br>".join(html_results) + "</body></html>"
 
