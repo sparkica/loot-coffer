@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>WordPress.org Stats for plugin {{ name }}</h1>
+<div class="wrapper">
+<ul>
+{% for plug in stats %}
+<li>Name: {{ plug.name }}
+</li>
+<li>Slug: {{ plug.slug }}
+</li>
+<li>Rating: {{ plug.rating }} %
+</li>
+<li>Avg downloads: {{ plug.avg_downloads }}
+</li>
+
+{% endfor %}
+</ul></div>
+{% endblock %}
+
