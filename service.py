@@ -4,8 +4,11 @@ import urllib2
 import urllib
 import localsettings as settings
 import feedparser
+import sqlite3
 
-from flask import Flask, request, jsonify, json
+from datetime import date
+
+from flask import Flask, request, g, jsonify, json
 from flask import render_template, redirect
 
 
@@ -14,6 +17,42 @@ app = Flask(__name__)
 
 WP_API_GATEWAY = "http://wpapi.org/api/plugin/"
 WP_SUPPORT_RSS_FEED = "http://wordpress.org/support/rss/plugin/"
+
+
+def connect_db():
+	"""Connects to the specific database."""
+	rv = sqlite3.connect(settings.DATABASE)
+	rv.row_factory = sqlite3.Row
+	return rv	
+
+
+def get_db():
+	"""Opens a new database connection if there is none yet for the
+	current application context.
+	"""
+	if not hasattr(g, 'sqlite_db'):
+		g.sqlite_db = connect_db()
+	return g.sqlite_db
+
+
+@app.teardown_appcontext
+def close_db(error):
+	"""Closes the database again at the end of the request."""
+	if hasattr(g, 'sqlite_db'):
+		g.sqlite_db.close()
+
+
+@app.route('/downloads/')
+def get_downloads_stats():
+	db = get_db()
+	cur_date = date.today()
+	query = 'select Name, sum(Downloads) as TotalDownloads from Downloads where Date < "%s" group by Name;' % (cur_date.strftime('%Y-%m-%d'))
+	print 'Query', query
+	cur = db.execute(query)
+	entries = cur.fetchall()
+	return render_template('downloads.html', entries=entries)
+
+
 
 def get_wp_support_feed_entries(plugin_slug, no_entries=-1):
 	feed = feedparser.parse(WP_SUPPORT_RSS_FEED + plugin_slug)
@@ -29,16 +68,19 @@ def wp_supportfeeds(methods=['GET']):
 	if request.method == 'GET':
 		slugs_arg = request.args.get('q')
 		no_entries = int(request.args.get('entries')) if request.args.get('entries') is not None else -1
+		details_arg = request.args.get('details')
+		details = details_arg.split(',') if details_arg is not None else []
+
 		if slugs_arg:
 			plug_slugs = slugs_arg.split(',')
 
 			for plugin in plug_slugs:
 				entries = get_wp_support_feed_entries( plugin.strip(), no_entries )
-				all_entries.append({'name': plugin, 'entries': entries })
+				all_entries.append({'name': plugin, 'entries': entries})
 	else:
 		all_entries = None
 
-	return render_template('wordpress_support.html', plugins=all_entries)
+	return render_template('wordpress_support.html', plugins=all_entries, details=details)
 
 
 def get_wp_plugin_info(plugin_slug):

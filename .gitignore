@@ -38,3 +38,4 @@ localsettings.py
 .ropeproject
 *.swp
 blacklist
+*.db

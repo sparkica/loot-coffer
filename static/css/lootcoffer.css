@@ -1,5 +1,14 @@
 /**/
-body { font-size: 0.8em; margin: 5px;}
-table {width: 100%;}
+body { font-size: 0.8em; margin: 5px; font-family: 'Open Sans', sans-serif;}
+h1 {font-size: 1.2em;}
+.pure-table th, .pure-table td { border-left: 0; padding: 5px; vertical-align:text-top;}
+.lc-details {border-bottom:1px solid #999;}
 
-table, th, td { border: 1px solid #999; padding: 5px;}
+/**
+* Support feeds
+**/
+.lc-plugin-name {padding:4px; margin:5px 0 0 5px; background: #2c3342; color:#fff; font-weight: bold;}
+.lc-rss-entries ul {margin:0; padding:0;}
+.lc-rss-entry {padding:5px; border-bottom:1px dashed #ccc; list-style: none;}
+.lc-date {color: rgba(127, 133, 130, 0.9);}
+.lc-rss-entry a {font-size:1.1em;}
