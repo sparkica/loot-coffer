@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Downloads</h1>
+<div class="wrapper">
+<table class="pure-table">
+<thead><td>Name</td><td>Total downloads</td>
+</thead>
+{% for entry in entries %}
+<tr>
+<td>{{ entry.Name }}</td><td>{{ entry.TotalDownloads }}</td>
+</tr>
+{% endfor %}
+</table>
+</div>
+{% endblock %}
+

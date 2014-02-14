@@ -17,6 +17,9 @@ What do we care about?
 ### WP.org stats
 - http://127.0.0.1:5000/wp/?q=related-posts,related-posts-by-zemanta,search-everything
 
+All our plugins:
+- http://127.0.0.1:5000/wp/?q=related-posts,related-posts-by-zemanta,search-everything,zemanta,wordpress-23-related-posts-plugin
+
 ### WP.org support feeds
 
 - http://127.0.0.1:5000/wp/support/?q=related-posts,related-posts-by-zemanta,search-everything
@@ -24,3 +27,5 @@ What do we care about?
 - http://127.0.0.1:5000/wp/support/?q=related-posts,related-posts-by-zemanta,search-everything&details=date
 - http://127.0.0.1:5000/wp/support/?q=related-posts,related-posts-by-zemanta,search-everything&details=date,desc
 
+### Downloads (you need dataset with downloads)
+- http://127.0.0.1:5000/downloads/ (using data from @igzebedze)
