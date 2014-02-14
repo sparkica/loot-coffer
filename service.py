@@ -1,9 +1,8 @@
 from flask import Flask
 import tweepy
 import urllib2
-import json
 import urllib
-import simplejson
+import localsettings as settings
 
 from flask import Flask, request, jsonify, json
 from flask import render_template, redirect
@@ -49,7 +48,8 @@ def twitter():
 	keywords = ["#Zemanta", "@Zemanta"]
 	twitter_filter = " OR ".join([keyword for keyword in keywords])
 
-	auth = tweepy.OAuthHandler("dzSXOVSUDQNflGshi1xXMA", "kacIBRAZVVPwnVXhvFWJsn9DXTn1BFZOZQocUSckw6c")
+	print settings.TWITTER_CONSUMER_TOKEN
+	auth = tweepy.OAuthHandler(settings.TWITTER_CONSUMER_TOKEN, settings.TWITTER_CONSUMER_SECRET)
 	# next lines seem not to be needed but were present in the tutorial
 	# Redirect user to Twitter to authorize
 	# redirect_user(auth.get_authorization_url())
@@ -67,20 +67,25 @@ def twitter():
 
 	return "<html><body>" + twitter_feed + "</body></html>"
 
+
 @app.route("/google")
 def google():
-	from google.appengine.api import search
 
-	# a query string like this comes from the client
-	querystring = “stories”
-	try:
-	 	index = search.Index(INDEX_NAME)
-	  	search_query = search.Query(
-		  	query_string=querystring,
-	      	options=search.QueryOptions(limit=doc_limit))
-		search_results = index.search(search_query)
-	except search.Error:
-		pass
+	url = ('https://ajax.googleapis.com/ajax/services/search/web'
+		   '?v=1.0&q=Paris')
+
+	request = urllib2.Request(
+		url, None, {'Referer': "http://www.zemanta.com/"})
+	response = urllib2.urlopen(request).read()
+
+	# Process the JSON string.
+	result = json.loads(response)
+
+	results = result['responseData']['results']
+	for result in results:
+		print result
+
+	return "<html><body>" + str(results["responseData"]) + "</body></html>"
 
 if __name__ == "__main__":
 	app.run()
