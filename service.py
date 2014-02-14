@@ -15,7 +15,7 @@ WP_API_GATEWAY = "http://wpapi.org/api/plugin/"
 def get_wp_plugin_info(plugin_slug):
 
 	json_res = urllib.urlopen(WP_API_GATEWAY + plugin_slug + '.json').read()
-	res = simplejson.loads(json_res)
+	res = json.loads(json_res)
 	stats = {'name' : res['name'],
 			'slug' : plugin_slug,
 			'version': res['version'],
