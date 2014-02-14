@@ -1,19 +1,35 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>WordPress.org Stats for plugin {{ name }}</h1>
+<h1>WordPress.org Stats</h1>
 <div class="wrapper">
-<ul>
-{% for plug in stats %}
-<li>Name: {{ plug.name }}
-</li>
-<li>Slug: {{ plug.slug }}
-</li>
-<li>Rating: {{ plug.rating }} %
-</li>
-<li>Avg downloads: {{ plug.avg_downloads }}
-</li>
 
+<table>
+<thead>
+	<th>Name</th>
+	<th>Version</th>
+	<th>Rating %</th>
+	<th colspan="2">Downloads</th>
+	<th>Last updated</th>
+</thead>
+<tr>
+	<td colspan="3"></td>
+	<td>avg</td>
+	<td>total</td>
+	<td> </td>
+</tr>
+{% for plug in stats %}
+
+<tr>
+<td>{{ plug.name }}</td>
+<td>{{ plug.version }}</td>
+<td>{{ plug.rating }}</td>
+<td>{{ plug.avg_downloads }}</td>
+<td>{{ plug.total_downloads }}</td>
+<td>{{ plug.updated }}</td>
+</tr>
 {% endfor %}
-</ul></div>
+</table>
+
+</div>
 {% endblock %}
 
