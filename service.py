@@ -37,7 +37,7 @@ def wp_supportfeeds(methods=['GET']):
 				all_entries.append({'name': plugin, 'entries': entries })
 	else:
 		all_entries = None
-	
+
 	return render_template('wordpress_support.html', plugins=all_entries)
 
 
@@ -118,9 +118,10 @@ def google(methods=['GET']):
 	# 1w - one week
 	last_week = "dateRestrict=1w"
 	number_of_results = "num=20"
+	other_options = "rsz=large"
 
 	url = ('https://ajax.googleapis.com/ajax/services/search/web'
-		   '?v=1.0&key=%s&q=%s&%s&%s' % (settings.GOOGLE_API_KEY, query, last_week, number_of_results))
+		   '?v=1.0&key=%s&q=%s&%s&%s&%s' % (settings.GOOGLE_API_KEY, query, last_week, number_of_results, other_options))
 
 	new_request = urllib2.Request(
 		url, None, {'Referer': "http://www.zemanta.com/"})
