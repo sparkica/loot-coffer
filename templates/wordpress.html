@@ -20,7 +20,7 @@
 {% for plug in stats %}
 
 <tr>
-<td>{{ plug.name }}</td>
+<td><a href="{{ plug.homepage_url }}" target="_blank">{{ plug.name }}</a></td>
 <td>{{ plug.version }}</td>
 <td>{{ plug.rating }}</td>
 <td>{{ plug.avg_downloads }}</td>

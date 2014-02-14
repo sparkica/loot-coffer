@@ -47,6 +47,7 @@ def get_wp_plugin_info(plugin_slug):
 	res = json.loads(json_res)
 	stats = {'name' : res['name'],
 			'slug' : plugin_slug,
+			'homepage_url': res['homepage'],
 			'version': res['version'],
 			'updated': res['updated'],
 			'rating': res['rating'],
@@ -82,7 +83,7 @@ def index():
 	return render_template('index.html')
 
 
-@app.route("/twitter")
+@app.route("/twitter/")
 def twitter():
 	keywords = ["#Zemanta", "@Zemanta"]
 	twitter_filter = " OR ".join([keyword for keyword in keywords])
@@ -106,7 +107,7 @@ def twitter():
 	return "<html><body>" + twitter_feed + "</body></html>"
 
 
-@app.route("/google")
+@app.route("/google/")
 def google(methods=['GET']):
 
 	blacklist = ["https://github.com"]
