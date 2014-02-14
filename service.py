@@ -3,34 +3,63 @@ import simplejson
 
 from flask import Flask, request, jsonify, json
 from flask import render_template, redirect
+
+
 app = Flask(__name__)
 
-import helpers
 
 WP_API_GATEWAY = "http://wpapi.org/api/plugin/"
 
+def get_wp_plugin_info(plugin_slug):
+	print 'in helpers...'
+	#http://wpapi.org/api/type/slug.format
 
-@app.route("/wp/")
-def wp_stats(names=None, methods=['GET']):
+	print 'Plugin slug #2', plugin_slug
+
+	json_res = urllib.urlopen(WP_API_GATEWAY + plugin_slug + '.json').read()
+
+	#print json_res
+	res = simplejson.loads(json_res)
+	print "got json"
+	stats = {'name' : res['name'],
+			'slug' : plugin_slug,
+			'version': res['version'],
+			'updated': res['updated'],
+			'rating': res['rating'],
+			'avg_downloads' : res['average_downloads'],
+			'hits': res['hits'],
+			'total_downloads': res['total_downloads']
+			}
+	return stats
+
+
+
+@app.route('/wp/')
+def wp_stats(methods=['GET']):
 
 	all_stats = []
 
 	print 'here'
 
 	if request.method == 'GET':
+		print 'here too'
 		slugs_arg = request.args.get('q')
 		print "Slug arg: ", slugs_arg
 
-		plug_slugs = slugs_arg.split(',')
+		if slugs_arg:
+			plug_slugs = slugs_arg.split(',')
 
-
-		for plugin in plug_slugs:
-			stats = get_plugin_info(plug_slug)
-			all_stats.append(stats)
+			for plugin in plug_slugs:
+				print "Plugin: ", plugin
+				stats = get_wp_plugin_info( plugin.strip() )
+				print "Stats: ", stats
+				all_stats.append(stats)
 	else:
 		all_stats = None
 
-	return render_template('wordpress.html', name=plug_slug, stats=all_stats)
+	print 'about to render things...'
+	return render_template('wordpress.html', stats=all_stats)
+
 
 
 @app.route("/")
@@ -53,4 +82,4 @@ def twitter():
 
 
 if __name__ == "__main__":
-	app.run()
+	app.run(debug=True)
