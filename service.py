@@ -110,7 +110,12 @@ def twitter():
 @app.route("/google/")
 def google(methods=['GET']):
 
-	blacklist = ["https://github.com"]
+	blacklist = []
+	try:
+		with open("blacklist") as f:
+			blacklist = f.readlines()
+	except:
+		pass
 
 	query = None
 	if request.method == 'GET':
@@ -121,47 +126,38 @@ def google(methods=['GET']):
 		query = "Zemanta"
 
 	# 1w - one week
-	last_week = "dateRestrict=1w"
+	last_week = "dateRestrict=7d"
+	sort_option = "scoring=d"  # "sort=date-date:d"
 	total_results = 30
 	html_results = []
 	start_index = 0
+
+	rendered_html = []
 	while start_index < total_results:
-		# 10 is max
-		start = "start=%d" % start_index
-		number_of_results = "num=10"
-		other_options = "rsz=large"
-
-		url = ('https://ajax.googleapis.com/ajax/services/search/web'
-		   	'?v=1.0&key=%s&q=%s&%s&%s&%s&%s' % (settings.GOOGLE_API_KEY, query, last_week, start, number_of_results, other_options))
-
+		url = "https://www.googleapis.com/customsearch/v1?key=%s&cx=%s&q=%s&num=10&start=%s&dateRestrict=w1&sort=date:d" %\
+			(urllib2.quote(settings.GOOGLE_API_KEY), urllib2.quote(settings.GOOGLE_SEARCH_ENGINE_KEY), query, str(start_index+1))
 		new_request = urllib2.Request(
 			url, None, {'Referer': "http://www.zemanta.com/"})
 		response = urllib2.urlopen(new_request).read()
 
-		# Process the JSON string.
-		result = json.loads(response)
-
-		results = result['responseData']['results']
-
-		if len(results) == 0:
-			start_index = total_results
-		else:
-			start_index += len(results)
-
-		for result in results:
-			if [url for url in blacklist if result['url'].startswith(url)] != []:
+		records = json.loads(response)
+		for item in records['items']:
+			if [urlx for urlx in blacklist if item['link'].startswith(urlx.strip())] != []:
 				continue
 
 			rendered_html = "<div>"
-			rendered_html += result['title'] + "<br>"
-			rendered_html += "<a href=" + result['url'] + ">%s</a>" % result['url'] + "<br>"
-			rendered_html += result['content'] + "<br>"
+			rendered_html += item['title'] + "<br>"
+			rendered_html += "<a href=" + item['link'] + ">%s</a>" % item['link'] + "<br>"
+			rendered_html += item['snippet'] + "<br>"
 			rendered_html += "</div>"
 			html_results.append(rendered_html)
+		count_items = len(records['items'])
+		if count_items == 0:
+			start_index = total_results
+		else:
+			start_index += count_items
 
 	return """<html><head><script src="https://www.google.com/jsapi" type="text/javascript"></script></head><body>""" + "<br>".join(html_results) + "</body></html>"
-
-
 
 if __name__ == "__main__":
 	app.run(debug=True)
