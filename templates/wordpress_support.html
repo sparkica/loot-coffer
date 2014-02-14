@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>WordPress.org support entries</h1>
+<div class="wrapper">
+
+<table>
+{% for plug in plugins %}
+<tr><td>{{ plug.name }}</td>
+<td>
+	<ul>
+	{% for entry in plug.entries %}
+		<li><a href="{{ entry.link }}" target="_blank">{{ entry.title }} </a></li>
+	{% endfor %}
+	</ul>
+	</td>
+	</tr>
+{% endfor %}
+</table>
+</div>
+{% endblock %}
+
